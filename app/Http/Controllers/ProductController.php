@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Type;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -15,17 +16,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $manufacturers = Manufacturer::with('id', 'name')->get();
-        $products = Product::with('type', 'manufacturer')->get();
-        $types = Type::with('id', 'name')->get();
-
         $context = [
-            'manufacturers' => $manufacturers,
-            'products' => $products,
-            'types' => $types
+            'manufacturers' => Manufacturer::select('id', 'name')->get(),
+            'products' => Product::with('type', 'manufacturer')->get(),
+            'types' => Type::select('id', 'name')->get()
         ];
-
-        return view('admin.product', $context);
+        return view('product', $context);
     }
 
     /**
@@ -35,31 +31,33 @@ class ProductController extends Controller
     {
         Product::create([
             'name' => $request->name,
-            'type' => $request->type,
-            'manufacturer' => $request->manufacturer,
+            'description' => $request->description,
+            'type_id' => $request->type,
+            'manufacturer_id' => $request->manufacturer,
             'base_price' => $request->base_price,
             'sell_price' => $request->sell_price,
-            'stock' => $request->stock,
+            'stock' => $request->stock
         ]);
 
-        return redirect()->route('admin.product.index');
+        return redirect()->route('product.index');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProductRequest $request, Product $product, $id)
+    public function update(Request $request, $id)
     {
         Product::where('id', $id)->update([
             'name' => $request->name,
-            'type' => $request->type,
-            'manufacturer' => $request->manufacturer,
+            'description' => $request->description,
+            'type_id' => $request->type,
+            'manufacturer_id' => $request->manufacturer,
             'base_price' => $request->base_price,
             'sell_price' => $request->sell_price,
-            'stock' => $request->stock,
+            'stock' => $request->stock
         ]);
 
-        return redirect()->route('admin.product.index');
+        return redirect()->route('product.index');
     }
 
     /**
@@ -70,6 +68,6 @@ class ProductController extends Controller
         $product = Product::find($id);
         $product->delete();
 
-        return redirect()->route('admin.product.index');
+        return redirect()->route('product.index');
     }
 }
