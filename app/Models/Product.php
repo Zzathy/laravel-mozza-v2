@@ -12,13 +12,14 @@ class Product extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $primaryKey = 'product_id';
 
     public function manufacturer() {
-        return $this->belongsTo(Manufacturer::class);
+        return $this->belongsTo(Manufacturer::class, 'manufacturer_foreign', 'manufacturer_id');
     }
 
     public function type() {
-        return $this->belongsTo(Type::class);
+        return $this->belongsTo(Type::class, 'type_foreign', 'type_id');
     }
 
 }

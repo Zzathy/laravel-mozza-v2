@@ -1,6 +1,6 @@
 @extends('base')
 
-@section('title', 'Barang')
+@section('title', 'Produk')
 @section('product', 'active')
 
 @section('css')
@@ -12,7 +12,7 @@
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">Data Product</h1>
+        <h1 class="h3 mb-2 text-gray-800">Data Produk</h1>
         <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
             For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official
                 DataTables documentation</a>.</p>
@@ -20,7 +20,7 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="d-flex justify-content-between card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary align-self-center">Tabel Data Product</h6>
+                <h6 class="m-0 font-weight-bold text-primary align-self-center">Tabel Data Produk</h6>
                 <!-- Button trigger modal -->
                 <button type="button float-right" class="btn btn-success" data-toggle="modal" data-target="#createProduct">
                     Create
@@ -31,10 +31,11 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
+                                <th>Kode</th>
                                 <th>Nama</th>
                                 <th>Deskripsi</th>
                                 <th>Jenis</th>
-                                <th>Manufacturer</th>
+                                <th>Produsen</th>
                                 <th>Harga Pokok</th>
                                 <th>Harga Jual</th>
                                 <th>Stok</th>
@@ -43,10 +44,11 @@
                         </thead>
                         <tfoot>
                             <tr>
+                                <th>Kode</th>
                                 <th>Nama</th>
                                 <th>Deskripsi</th>
                                 <th>Jenis</th>
-                                <th>Manufacturer</th>
+                                <th>Produsen</th>
                                 <th>Harga Pokok</th>
                                 <th>Harga Jual</th>
                                 <th>Stok</th>
@@ -56,75 +58,78 @@
                         <tbody>
                             @foreach ($products as $product)
                                 <tr>
+                                    <td>{{ $product->product_code }}</td>
                                     <td>{{ $product->name }}</td>
                                     <td>{{ $product->description }}</td>
                                     <td>{{ $product->type->name }}</td>
                                     <td>{{ $product->manufacturer->name }}</td>
-                                    <td>{{ $product->base_price }}</td>
-                                    <td>{{ $product->sell_price }}</td>
+                                    <td>{{ number_format($product->base_price, 2, ',', '.') }}</td>
+                                    <td>{{ number_format($product->sell_price, 2, ',', '.') }}</td>
                                     <td>{{ $product->stock }}</td>
                                     <td>
                                         <!-- Button trigger modal -->
                                         <button type="button" class="btn btn-warning btn-circle btn-sm" data-toggle="modal"
-                                            data-target="#updateProduct{{ $product->id }}">
+                                            data-target="#updateProduct{{ $product->product_code }}">
                                             <i class="fas fa-pencil-alt"></i>
                                         </button>
                                         |
                                         <button type="button" class="btn btn-danger btn-circle btn-sm" data-toggle="modal"
-                                            data-target="#deleteProduct{{ $product->id }}">
+                                            data-target="#deleteProduct{{ $product->product_code }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>
 
                                 <!-- Product Update Modal -->
-                                <div class="modal fade" id="updateProduct{{ $product->id }}" data-backdrop="static"
-                                    data-keyboard="false" tabindex="-1" aria-labelledby="updateProductLabel"
-                                    aria-hidden="true">
+                                <div class="modal fade" id="updateProduct{{ $product->product_code }}"
+                                    data-backdrop="static" data-keyboard="false" tabindex="-1"
+                                    aria-labelledby="updateProductLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="updateProductLabel">Ubah Barang</h5>
+                                                <h5 class="modal-title" id="updateProductLabel">Ubah Produk</h5>
                                                 <button type="button" class="close" data-dismiss="modal"
                                                     aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <form action="{{ route('product.update', $product->id) }}" method="post">
+                                                <form action="{{ route('product.update', $product->product_code) }}"
+                                                    method="post">
                                                     @csrf
                                                     <div class="form-group">
-                                                        <label for="name">Nama Barang</label>
+                                                        <label for="name">Nama Produk</label>
                                                         <input type="text" class="form-control" name="name"
-                                                            id="name" value="{{ $product->name }}" autocomplete="off">
+                                                            id="name" value="{{ $product->name }}" autocomplete="off"
+                                                            required>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="description">Deskripsi Barang</label>
+                                                        <label for="description">Deskripsi Produk</label>
                                                         <input type="text" class="form-control" name="description"
                                                             id="description" value="{{ $product->description }}"
                                                             autocomplete="off">
                                                     </div>
                                                     <div class="form-row">
                                                         <div class="form-group col-md-6">
-                                                            <label for="manufacturer">Manufacturer</label>
-                                                            <select id="manufacturer" name="manufacturer"
-                                                                class="form-control">
-                                                                <option>Choose...</option>
-                                                                @foreach ($manufacturers as $manufacturer)
-                                                                    <option value="{{ $manufacturer->id }}"
-                                                                        {{ $manufacturer->id == $product->manufacturer_id ? 'selected' : '' }}>
-                                                                        {{ $manufacturer->name }}</option>
+                                                            <label for="type">Jenis</label>
+                                                            <select id="type" name="type" class="form-control">
+                                                                <option value="0">Pilih...</option>
+                                                                @foreach ($types as $type)
+                                                                    <option value="{{ $type->type_id }}"
+                                                                        {{ $type->type_id == $product->type_foreign ? 'selected' : '' }}>
+                                                                        {{ $type->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                         <div class="form-group col-md-6">
-                                                            <label for="type">Jenis</label>
-                                                            <select id="type" name="type" class="form-control">
-                                                                <option>Choose...</option>
-                                                                @foreach ($types as $type)
-                                                                    <option value="{{ $type->id }}"
-                                                                        {{ $type->id == $product->type_id ? 'selected' : '' }}>
-                                                                        {{ $type->name }}</option>
+                                                            <label for="manufacturer">Produsen</label>
+                                                            <select id="manufacturer" name="manufacturer"
+                                                                class="form-control">
+                                                                <option value="0">Pilih...</option>
+                                                                @foreach ($manufacturers as $manufacturer)
+                                                                    <option value="{{ $manufacturer->manufacturer_id }}"
+                                                                        {{ $manufacturer->manufacturer_id == $product->manufacturer_foreign ? 'selected' : '' }}>
+                                                                        {{ $manufacturer->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -133,18 +138,20 @@
                                                         <div class="form-group col-md-4">
                                                             <label for="base_price">Harga Pokok</label>
                                                             <input type="number" class="form-control" name="base_price"
-                                                                id="base_price" value="{{ $product->base_price }}">
+                                                                id="base_price" value="{{ $product->base_price }}"
+                                                                required>
                                                         </div>
                                                         <div class="form-group col-md-4">
                                                             <label for="sell_price">Harga Jual</label>
                                                             <input type="number" class="form-control" name="sell_price"
-                                                                id="sell_price" value="{{ $product->sell_price }}">
+                                                                id="sell_price" value="{{ $product->sell_price }}"
+                                                                required>
                                                         </div>
                                                         <div class="form-group col-md-4">
                                                             <label for="stock">Stok</label>
                                                             <input type="number" class="form-control" name="stock"
                                                                 id="stock" step="0.1"
-                                                                value="{{ $product->stock }}">
+                                                                value="{{ $product->stock }}" required>
                                                         </div>
                                                     </div>
                                             </div>
@@ -159,13 +166,13 @@
                                 </div>
 
                                 <!-- Product Delete Modal -->
-                                <div class="modal fade" id="deleteProduct{{ $product->id }}" data-backdrop="static"
-                                    data-keyboard="false" tabindex="-1" aria-labelledby="deleteProductLabel"
-                                    aria-hidden="true">
+                                <div class="modal fade" id="deleteProduct{{ $product->product_code }}"
+                                    data-backdrop="static" data-keyboard="false" tabindex="-1"
+                                    aria-labelledby="deleteProductLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteProductLabel">Hapus Barang</h5>
+                                                <h5 class="modal-title" id="deleteProductLabel">Hapus Produk</h5>
                                                 <button type="button" class="close" data-dismiss="modal"
                                                     aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
@@ -177,7 +184,7 @@
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
                                                     data-dismiss="modal">Close</button>
-                                                <form action="{{ route('product.delete', $product->id) }}"
+                                                <form action="{{ route('product.delete', $product->product_code) }}"
                                                     method="post">
                                                     @csrf
                                                     @method('delete')
@@ -203,7 +210,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createProductLabel">Tambah Barang</h5>
+                    <h5 class="modal-title" id="createProductLabel">Tambah Produk</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -212,31 +219,32 @@
                     <form action="{{ route('product.create') }}" method="post">
                         @csrf
                         <div class="form-group">
-                            <label for="name">Nama Barang</label>
-                            <input type="text" class="form-control" name="name" id="name"
-                                autocomplete="off">
+                            <label for="name">Nama Produk</label>
+                            <input type="text" class="form-control" name="name" id="name" autocomplete="off"
+                                required>
                         </div>
                         <div class="form-group">
-                            <label for="description">Deskripsi Barang</label>
+                            <label for="description">Deskripsi Produk</label>
                             <input type="text" class="form-control" name="description" id="description"
                                 autocomplete="off">
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label for="manufacturer">Manufacturer</label>
+                                <label for="manufacturer">Produsen</label>
                                 <select id="manufacturer" name="manufacturer" class="form-control">
-                                    <option>Choose...</option>
+                                    <option>Pilih...</option>
                                     @foreach ($manufacturers as $manufacturer)
-                                        <option value="{{ $manufacturer->id }}">{{ $manufacturer->name }}</option>
+                                        <option value="{{ $manufacturer->manufacturer_id }}">{{ $manufacturer->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="type">Jenis</label>
                                 <select id="type" name="type" class="form-control">
-                                    <option>Choose...</option>
+                                    <option>Pilih...</option>
                                     @foreach ($types as $type)
-                                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                        <option value="{{ $type->type_id }}">{{ $type->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -244,16 +252,16 @@
                         <div class="form-row">
                             <div class="form-group col-md-4">
                                 <label for="base_price">Harga Pokok</label>
-                                <input type="number" class="form-control" name="base_price" id="base_price">
+                                <input type="number" class="form-control" name="base_price" id="base_price" required>
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="sell_price">Harga Jual</label>
-                                <input type="number" class="form-control" name="sell_price" id="sell_price">
+                                <input type="number" class="form-control" name="sell_price" id="sell_price" required>
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="stock">Stok</label>
-                                <input type="number" class="form-control" name="stock" id="stock"
-                                    step="0.1">
+                                <input type="number" class="form-control" name="stock" id="stock" step="0.1"
+                                    required>
                             </div>
                         </div>
                 </div>

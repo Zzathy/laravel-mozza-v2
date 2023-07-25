@@ -17,10 +17,11 @@ class ProductController extends Controller
     public function index()
     {
         $context = [
-            'manufacturers' => Manufacturer::select('id', 'name')->get(),
+            'manufacturers' => Manufacturer::all(),
             'products' => Product::with('type', 'manufacturer')->get(),
-            'types' => Type::select('id', 'name')->get()
+            'types' => Type::all()
         ];
+
         return view('product', $context);
     }
 
@@ -29,11 +30,21 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
+        $code = 'PRDCT';
+        $product = Product::orderBy('created_at', 'desc')->first();
+
+        if(!is_null($product)) {
+            $product_code = $code.strval($product->product_id + 1);
+        } else {
+            $product_code = $code.'1';
+        }
+
         Product::create([
+            'product_code' => $product_code,
             'name' => $request->name,
             'description' => $request->description,
-            'type_id' => $request->type,
-            'manufacturer_id' => $request->manufacturer,
+            'manufacturer_foreign' => $request->manufacturer,
+            'type_foreign' => $request->type,
             'base_price' => $request->base_price,
             'sell_price' => $request->sell_price,
             'stock' => $request->stock
@@ -47,11 +58,11 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Product::where('id', $id)->update([
+        Product::where('product_code', $id)->update([
             'name' => $request->name,
             'description' => $request->description,
-            'type_id' => $request->type,
-            'manufacturer_id' => $request->manufacturer,
+            'manufacturer_foreign' => $request->manufacturer,
+            'type_foreign' => $request->type,
             'base_price' => $request->base_price,
             'sell_price' => $request->sell_price,
             'stock' => $request->stock
@@ -65,8 +76,7 @@ class ProductController extends Controller
      */
     public function delete(Product $product, $id)
     {
-        $product = Product::find($id);
-        $product->delete();
+        $product = Product::where('product_code', $id)->delete();
 
         return redirect()->route('product.index');
     }
