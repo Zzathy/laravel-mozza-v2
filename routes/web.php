@@ -1,6 +1,11 @@
 <?php
 
+use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ManTyController;
 
@@ -16,8 +21,47 @@ use App\Http\Controllers\ManTyController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $date = date('Y') . "-" . date('m') ."-01 00:00:00";
+    $ordersAll = Order::all();
+    $ordersMonthly = Order::where('created_at', '>', $date)->get();
+    $totalAll = 0;
+    $totalMonthly = 0;
+
+    foreach($ordersAll as $order) {
+        $totalAll += $order->total;
+    }
+
+    foreach($ordersMonthly as $order) {
+        $totalMonthly += $order->total;
+    }
+
+    $context = [
+        'totalAll' => $totalAll,
+        'totalMonthly' => $totalMonthly,
+        'totalOrderDetail' => OrderDetail::all(),
+        'totalProduct' => Product::all(),
+    ];
+    return view('index', $context);
 })->name('index');
+
+Route::prefix('customer')->group(function() {
+    Route::controller(CustomerController::class)->group(function() {
+        Route::get('/', 'index')->name('customer.index');
+        Route::post('/create', 'create')->name('customer.create');
+        Route::post('/update/{id}', 'update')->name('customer.update');
+        Route::delete('/delete/{id}', 'delete')->name('customer.delete');
+    });
+});
+
+Route::prefix('order')->group(function() {
+    Route::controller(OrderController::class)->group(function() {
+        Route::get('/', 'index')->name('order.index');
+        Route::get('/pdf', 'pdf')->name('order.pdf');
+        Route::post('/create', 'create')->name('order.create');
+        Route::post('/update/{id}', 'update')->name('order.update');
+        Route::delete('/delete/{id}', 'delete')->name('order.delete');
+    });
+});
 
 Route::prefix('product')->group(function() {
     Route::controller(ProductController::class)->group(function() {
