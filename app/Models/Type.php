@@ -10,4 +10,5 @@ class Type extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $primaryKey = 'type_id';
 }

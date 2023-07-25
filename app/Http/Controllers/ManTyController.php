@@ -16,8 +16,8 @@ class ManTyController extends Controller
     public function index()
     {
         $context = [
-            'manufacturers' => Manufacturer::select('id', 'name', 'email')->get(),
-            'types' => Type::select('id', 'name')->get(),
+            'manufacturers' => Manufacturer::all(),
+            'types' => Type::all(),
         ];
         return view('manty', $context);
     }
@@ -28,11 +28,27 @@ class ManTyController extends Controller
     public function create(Request $request)
     {
         if($request->get('mode') == 'type') {
+            $code = "TYP";
+            $type = Type::orderBy('created_at', 'desc')->first();
+            if(!is_null($type)) {
+                $type_code = $code.strval($type->type_id + 1);
+            } else {
+                $type_code = $code.'1';
+            }
             Type::create([
+                'type_code' => $type_code,
                 'name' => $request->name
             ]);
         } else {
+            $code = "MNFCTR";
+            $manufacturer = Manufacturer::orderBy('created_at', 'desc')->first();
+            if(!is_null($manufacturer)) {
+                $manufacturer_code = $code.strval($manufacturer->manufacturer_id + 1);
+            } else {
+                $manufacturer_code = $code.'1';
+            }
             Manufacturer::create([
+                'manufacturer_code' => $manufacturer_code,
                 'name' => $request->name,
                 'email' => $request->email
             ]);
@@ -47,11 +63,11 @@ class ManTyController extends Controller
     public function update(Request $request, $id)
     {
         if($request->get('mode') == 'type') {
-            Type::where('id', $id)->update([
+            Type::where('type_code', $id)->update([
                 'name' => $request->name
             ]);
         } else {
-            Manufacturer::where('id', $id)->update([
+            Manufacturer::where('manufacturer_code', $id)->update([
                 'name' => $request->name,
                 'email' => $request->email
             ]);
@@ -66,11 +82,9 @@ class ManTyController extends Controller
     public function delete(Request $request, $id)
     {
         if($request->get('mode') == 'type') {
-            $type = Type::find($id);
-            $type->delete();
+            $type = Type::where('type_code', $id)->delete();
         } else {
-            $manufacturer = Manufacturer::find($id);
-            $manufacturer->delete();
+            $manufacturer = Manufacturer::where('manufacturer_code', $id)->delete();
         }
 
         return redirect()->route('manty.index');

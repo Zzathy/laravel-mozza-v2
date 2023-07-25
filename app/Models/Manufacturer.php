@@ -10,4 +10,5 @@ class Manufacturer extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $primaryKey = 'manufacturer_id';
 }
